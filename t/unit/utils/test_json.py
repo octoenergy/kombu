@@ -1,15 +1,19 @@
 from collections import namedtuple
 from datetime import datetime
 from decimal import Decimal
+import sys
 from unittest.mock import MagicMock, Mock
 from uuid import uuid4
 
 import pytest
-import pytz
 
 from kombu.utils.encoding import str_to_bytes
 from kombu.utils.json import _DecodeError, dumps, loads
 
+if sys.version_info >= (3, 9):
+    from zoneinfo import ZoneInfo
+else:
+    from backports.zoneinfo import ZoneInfo
 
 class Custom:
 
@@ -24,7 +28,7 @@ class test_JSONEncoder:
 
     def test_datetime(self):
         now = datetime.utcnow()
-        now_utc = now.replace(tzinfo=pytz.utc)
+        now_utc = now.replace(tzinfo=ZoneInfo("UTC"))
         stripped = datetime(*now.timetuple()[:3])
         serialized = loads(dumps({
             'datetime': now,
